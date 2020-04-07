@@ -1,0 +1,266 @@
+<html>
+<head>
+	<title>
+		
+	</title>
+	<script type="text/javascript" src="jquery-3.4.1.min"></script>
+	<script type="text/javascript" src="jquery-1.12.0.min.js"></script>
+	<script type="text/javascript" src="dist/Chart.bundle.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<style type="text/css">
+	body{
+		background-color: #cde4df;
+		
+	}
+	.titulo{
+		
+		width: 100%;
+		background-color: #3e504c;
+	}
+
+	.titulo h2{
+		color: #fff;
+		font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+		text-align: center;
+		padding-top: 15px;
+		padding-bottom: 15px; 
+
+	}
+	#canvas-container{
+		width: 100%;
+	}
+	.contenido {
+		margin-left: 20%;
+		width: 60%;
+	}
+
+	#sensores{
+		background-color: #c3ded8;
+		padding-bottom: 20px; 
+		border-radius: 30px 30px 0px 0px;
+	}
+	#sensores h2{
+		font-size: 25px;
+		text-align: center;
+		margin: 0px;
+		padding: 15px 0px 15px 0px;
+		font-family: Arial, Helvetica, sans-serif;
+		color: #3e504c;
+
+	}
+	.tablas {
+	    border-collapse: collapse;
+	    width: 72%;
+	    margin-left: 14%;
+	    
+	}
+
+	.tablas td, .tablas th {
+	    border: 1px solid #ddd;
+	    padding: 8px;
+	    width: 24%;
+	    text-align: center;
+	    color: #fff
+	}
+	.tablas tr:nth-child(even){background-color: #f2f2f2;}
+
+	
+
+	.tablas th {
+	    padding-top: 12px;
+	    padding-bottom: 12px;
+	    text-align: center;
+	    background-color: #181818;
+	    color: white;
+	}
+
+	.bg-info td{
+		color: white;
+	}
+
+	</style>
+	<script type="text/javascript">
+	$(document).ready(function(){
+		
+		var datos = {
+			labels : ["database -8","database -7","database -6","database -5","database -4", "database -3", "database -2", "database -1", "database 0"],
+			datasets : [{
+				label : "Temperatura",
+				data : [4, 12, 9, 7, 5,10,14,9,8]
+			}
+			]
+		};
+		var datos2 = {
+			labels : ["database -8","database -7","database -6","database -5","database -4", "database -3", "database -2", "database -1", "database 0"],
+			datasets : [{
+				label : "Humedad",
+				data : [20, 12, 29, 17, 15,10,24,29,18]
+			}
+			]
+		};
+
+
+		var canvas = document.getElementById('chart').getContext('2d');
+		window.bar = new Chart(canvas, {
+			type : "line",
+			data : datos,
+			options : {
+				elements : {
+					point : {
+						borderWidth : 1,
+						borderColor : "rgb(0,255,0)",
+						
+					}
+				},
+				responsive : true,
+				title : {
+					display : true,
+					text : "Datos enviados desde Arduino"
+				}
+			}
+		});
+
+		var canvas2 = document.getElementById('chart2').getContext('2d');
+		window.bar2 = new Chart(canvas2, {
+			type : "line",
+			data : datos2,
+			options : {
+				elements : {
+					rectangle : {
+						borderWidth : 1,
+						borderColor : "rgb(0,255,0)",
+						borderSkipped : 'bottom'
+					}
+				},
+				responsive : true,
+				title : {
+					display : true,
+					text : "Datos enviados desde Arduino"
+				}
+			}
+		});
+
+		setInterval(function(){
+			datos.labels.splice(0,1);
+			/*var newData = [
+				[getRandom(),getRandom(),getRandom(),getRandom(),getRandom()],				
+			];*/
+			var newDataTemp = getRandom();
+			var d = new Date();
+			var hora = `${d.getHours()}`.padStart(2, '0')+':'+`${d.getMinutes()}`.padStart(2, '0')+':'+`${d.getSeconds()}`.padStart(2, '0');
+			$.each(datos.datasets, function(i, dataset){
+				//dataset.data = newData[i];
+				dataset.data.splice(0,1);
+				dataset.data.push(newDataTemp);
+				
+			});
+			var dia = d.getDate();
+			var mes = d.getMonth()+1;
+			var year = d.getFullYear();
+			var fechaActual = 0; 
+			if(mes < 10){
+				fechaActual = `${dia}/0${mes}/${year}`;
+			}else{
+			 	fechaActual = `${dia}/${mes}/${year}`;
+			}
+			document.getElementById("temp").innerHTML = newDataTemp + '°C';
+			document.getElementById("horario").innerHTML = fechaActual + ' - ' + hora;
+			datos.labels.push(hora);
+			window.bar.update();
+			window.bar2.update();
+		}, 3000);
+
+		
+
+
+		function getRandom(){
+			return Math.round(Math.random() * 15);
+		}
+
+
+	});
+	</script>
+</head>
+<body>
+	<div class="titulo">
+		<h2>Sistema de control</h2>
+	</div>
+	<div class="container">
+		<div class="row">
+			<div class="col">
+				<div class="canvas-container">
+					<canvas id="chart" width="500" height="350"></canvas>
+				</div>
+			</div>
+			<div class="col">
+				<table class="table">
+					<tbody>
+						<tr class="bg-info">
+							<td>Temperatura</td>
+							<td id="temp"></td>
+						</tr>
+						<tr class="bg-info">
+							<td>Fecha</td>
+							<td id="horario"></td>
+						</tr>
+						<tr class="bg-info">
+							<td>Estado</td>
+							<td>Normal</td>
+						</tr>
+					</tbody>	
+				</table>
+				
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<div class="canvas-container">
+					<canvas id="chart2" width="500" height="350"></canvas>
+				</div>
+			</div>
+			<div class="col">
+				<table class="table">
+					<tbody>
+						<tr class="bg-info">
+							<td>Humedad</td>
+							<td id="humedad"></td>
+						</tr>
+						<tr class="bg-info">
+							<td>Fecha</td>
+							<td class="horario"></td>
+						</tr>
+						<tr class="bg-info">
+							<td>Estado</td>
+							<td>Normal</td>
+						</tr>
+					</tbody>	
+				</table>
+				
+			</div>
+		</div>
+	</div>
+	<div id="sensores">
+			<h2>Estado de los sensores</h2>
+
+			<table class="tablas">
+
+			  <tr>
+			    <th>Temperatura °C</th>
+			    <th>Iluminación</th>
+			    <th>Humedad %</th>
+			  </tr>
+			  
+			  <tr>
+			    <td class="valor">50</td>
+			    <td class="valor">10</td>
+			    <td class="valor">50</td>
+			  </tr>
+			  
+			</table>
+
+		</div>
+</body>
+</html>
